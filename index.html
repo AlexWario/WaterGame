@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Stream Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0A2540; /* Deep blue */
+      font-family: sans-serif;
+      color: #fff;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .scoreboard {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #FFD600; /* Bright yellow */
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: #0A2540;
+      box-shadow: 0 0 5px rgba(10,37,64,0.15);
+      border: 2px solid #FFD600;
+    }
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(20, 24px);
+      grid-template-rows: repeat(20, 24px);
+      gap: 1px;
+      background: #F5F6FA; /* Light gray */
+      border: 10px solid #FFD600; /* Yellow border */
+      position: relative;
+      box-shadow: 0 4px 24px 0 rgba(10,37,64,0.10);
+    }
+    .cell {
+      width: 24px;
+      height: 24px;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      border: 1px solid #E0E4EA;
+      color: #0A2540;
+    }
+    .border-drop {
+      background-color: #FFD600;
+    }
+    .game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      background: #fff;
+      padding: 40px 40px 30px 40px;
+      border: 3px solid #FFD600;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 26px;
+      display: none;
+      box-shadow: 0 8px 32px 0 rgba(10,37,64,0.18);
+      animation: pop-bounce 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+      z-index: 10;
+      color: #0A2540;
+    }
+    .game-over .splash-emoji {
+      font-size: 60px;
+      margin-bottom: 10px;
+      animation: splash-bounce 1.2s infinite alternate;
+      display: block;
+    }
+    .game-over .fun-message {
+      font-size: 20px;
+      color: #FFD600;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+    .game-over button {
+      margin-top: 18px;
+      font-size: 20px;
+      background: #FFD600;
+      color: #0A2540;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(10,37,64,0.10);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .game-over button:hover {
+      background: #FFEB66;
+      transform: scale(1.07);
+    }
+    .charity-link {
+      display: inline-block;
+      margin: 16px 0 8px 0;
+      font-size: 20px;
+      color: #FFD600;
+      background: #0A2540;
+      padding: 8px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(10,37,64,0.10);
+      border: 2px solid #FFD600;
+      transition: background 0.2s, color 0.2s, transform 0.2s;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 0 #000, 0 0 2px #000, 0 2px 6px #0008;
+    }
+    .charity-link:hover {
+      background: #FFD600;
+      color: #0A2540;
+      border-color: #0A2540;
+      transform: scale(1.06);
+      text-decoration: underline;
+      text-shadow: none;
+    }
+    @keyframes pop-bounce {
+      0% { transform: translate(-50%, -50%) scale(0.7); }
+      60% { transform: translate(-50%, -50%) scale(1.1); }
+      80% { transform: translate(-50%, -50%) scale(0.95); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes splash-bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-12px) scale(1.12); }
+    }
+    /* Fun confetti water drops */
+    .confetti-drop {
+      position: absolute;
+      font-size: 22px;
+      pointer-events: none;
+      animation: drop-fall 1.2s linear forwards;
+      opacity: 0.85;
+    }
+    @keyframes drop-fall {
+      0% { opacity: 0.7; transform: translateY(-30px) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(80px) scale(1.2); }
+    }
+    .corner-logo {
+      position: absolute;
+      top: 18px;
+      left: 24px;
+      width: 120px;
+      min-width: 100px;
+      max-width: 180px;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px 0 rgba(10,37,64,0.13);
+      border: 3px solid #FFD600;
+      background: #fff;
+      z-index: 20;
+      object-fit: cover;
+      transition: width 0.2s;
+    }
+    @media (max-width: 600px) {
+      .corner-logo {
+        width: 70px;
+        min-width: 60px;
+        border-radius: 10px;
+        border-width: 2px;
+      }
+      .mobile-controls {
+        display: flex;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 30;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 18px;
+        background: linear-gradient(0deg, #0A2540 90%, transparent 100%);
+      }
+      .ctrl-row {
+        display: flex;
+        gap: 24px;
+        margin-top: 8px;
+      }
+      .ctrl-btn {
+        background: #FFD600;
+        color: #0A2540;
+        border: 2.5px solid #FFD600;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin: 0 8px;
+        box-shadow: 0 2px 8px rgba(10,37,64,0.13);
+        transition: background 0.2s, color 0.2s, transform 0.2s, border-color 0.2s;
+        outline: none;
+      }
+      .ctrl-btn:active, .ctrl-btn:focus {
+        background: #FFEB66;
+        color: #0A2540;
+        border-color: #0A2540;
+        transform: scale(1.08);
+      }
+      .mobile-controls {
+        padding-bottom: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="Screenshot%202025-06-07%20030541.png" alt="Charity Water" class="corner-logo" />
+  <div class="scoreboard" id="scoreBoard">Water Collected: 0</div>
+  <div class="container">
+    <div class="game-board" id="gameBoard"></div>
+    <div class="game-over" id="gameOver">
+      <span class="splash-emoji">💦</span>
+      <div class="fun-message">Splash! You made quite a wave!</div>
+      <p>Game Over!</p>
+      <p id="finalScore">You collected 0 water</p>
+      <a href="https://www.charitywater.org/" target="_blank" class="charity-link">Learn more at charity: water</a>
+      <button onclick="restartGame()">Play Again</button>
+    </div>
+  </div>
+  <div class="mobile-controls" id="mobileControls">
+    <button class="ctrl-btn" id="ctrlUp" aria-label="Up">▲</button>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" id="ctrlLeft" aria-label="Left">◀</button>
+      <button class="ctrl-btn" id="ctrlDown" aria-label="Down">▼</button>
+      <button class="ctrl-btn" id="ctrlRight" aria-label="Right">▶</button>
+    </div>
+  </div>
+
+  <script>
+    const boardSize = 20;
+    const gameBoard = document.getElementById("gameBoard");
+    const gameOverScreen = document.getElementById("gameOver");
+    const finalScore = document.getElementById("finalScore");
+    const scoreBoard = document.getElementById("scoreBoard");
+    const cells = [];
+    let stream = [{ x: 10, y: 10 }];
+    let direction = { x: 0, y: 0 };
+    let food = randomPosition();
+    let dropletsCollected = 0;
+    let gameInterval;
+    const fishEmojis = ['🐟', '🐠', '🐡', '🐬'];
+
+    for (let y = 0; y < boardSize; y++) {
+      for (let x = 0; x < boardSize; x++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        if (x === 0 || y === 0 || x === boardSize - 1 || y === boardSize - 1) {
+          cell.classList.add("border-drop");
+        }
+        gameBoard.appendChild(cell);
+        cells.push(cell);
+      }
+    }
+
+    function getIndex(x, y) {
+      return y * boardSize + x;
+    }
+
+    function draw() {
+      cells.forEach(cell => {
+        cell.className = "cell";
+        cell.textContent = "";
+      });
+
+      stream.forEach((part, index) => {
+        const cell = cells[getIndex(part.x, part.y)];
+        cell.textContent = fishEmojis[index % fishEmojis.length];
+      });
+
+      const foodCell = cells[getIndex(food.x, food.y)];
+      foodCell.textContent = "💧"; // water droplet emoji for food
+
+      for (let y = 0; y < boardSize; y++) {
+        for (let x = 0; x < boardSize; x++) {
+          if (x === 0 || y === 0 || x === boardSize - 1 || y === boardSize - 1) {
+            cells[getIndex(x, y)].classList.add("border-drop");
+          }
+        }
+      }
+
+      scoreBoard.textContent = `Water Collected: ${dropletsCollected}`;
+    }
+
+    function move() {
+      const head = { x: stream[0].x + direction.x, y: stream[0].y + direction.y };
+
+      if (
+        head.x < 1 || head.x >= boardSize - 1 ||
+        head.y < 1 || head.y >= boardSize - 1 ||
+        stream.some(part => part.x === head.x && part.y === head.y)
+      ) {
+        clearInterval(gameInterval);
+        finalScore.textContent = `You collected ${dropletsCollected} water`;
+        gameOverScreen.style.display = "block";
+        showConfettiDrops();
+        return;
+      }
+
+      stream.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        dropletsCollected++;
+        food = randomPosition();
+      } else {
+        stream.pop();
+      }
+    }
+
+    function randomPosition() {
+      let pos;
+      do {
+        pos = {
+          x: Math.floor(Math.random() * (boardSize - 2)) + 1,
+          y: Math.floor(Math.random() * (boardSize - 2)) + 1,
+        };
+      } while (stream.some(part => part.x === pos.x && part.y === pos.y));
+      return pos;
+    }
+
+    document.addEventListener("keydown", e => {
+      switch (e.key) {
+        case "ArrowUp": if (direction.y === 0) direction = { x: 0, y: -1 }; break;
+        case "ArrowDown": if (direction.y === 0) direction = { x: 0, y: 1 }; break;
+        case "ArrowLeft": if (direction.x === 0) direction = { x: -1, y: 0 }; break;
+        case "ArrowRight": if (direction.x === 0) direction = { x: 1, y: 0 }; break;
+      }
+    });
+
+    // Mobile controls logic
+    function isMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    const mobileControls = document.getElementById('mobileControls');
+    if (isMobile()) {
+      mobileControls.style.display = 'flex';
+    }
+    document.getElementById('ctrlUp').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      if (direction.y === 0) direction = { x: 0, y: -1 };
+    });
+    document.getElementById('ctrlDown').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      if (direction.y === 0) direction = { x: 0, y: 1 };
+    });
+    document.getElementById('ctrlLeft').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      if (direction.x === 0) direction = { x: -1, y: 0 };
+    });
+    document.getElementById('ctrlRight').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      if (direction.x === 0) direction = { x: 1, y: 0 };
+    });
+
+    function gameLoop() {
+      if (direction.x !== 0 || direction.y !== 0) move();
+      draw();
+    }
+
+    function showConfettiDrops() {
+      // Remove old confetti
+      document.querySelectorAll('.confetti-drop').forEach(e => e.remove());
+      const emojis = ['💧','💦','💙','🫧'];
+      for (let i = 0; i < 16; i++) {
+        const drop = document.createElement('span');
+        drop.className = 'confetti-drop';
+        drop.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        drop.style.left = (40 + Math.random() * 220) + 'px';
+        drop.style.top = (Math.random() * 20) + 'px';
+        drop.style.animationDelay = (Math.random() * 0.7) + 's';
+        gameOverScreen.appendChild(drop);
+      }
+    }
+
+    function restartGame() {
+      stream = [{ x: 10, y: 10 }];
+      direction = { x: 0, y: 0 };
+      food = randomPosition();
+      dropletsCollected = 0;
+      gameOverScreen.style.display = "none";
+      document.querySelectorAll('.confetti-drop').forEach(e => e.remove());
+      gameInterval = setInterval(gameLoop, 150);
+    }
+
+    gameInterval = setInterval(gameLoop, 150);
+  </script>
+</body>
+</html>
