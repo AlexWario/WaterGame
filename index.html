@@ -31,6 +31,30 @@
       box-shadow: 0 0 5px rgba(10,37,64,0.15);
       border: 2px solid #FFD600;
     }
+    .reset-btn {
+      display: block;
+      margin: 60px 0 0 30px;
+      position: absolute;
+      top: 60px;
+      left: 0;
+      font-size: 18px;
+      background: #FFD600;
+      color: #0A2540;
+      border: 2px solid #FFD600;
+      border-radius: 8px;
+      padding: 8px 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(10,37,64,0.10);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+      z-index: 15;
+    }
+    .reset-btn:hover, .reset-btn:focus {
+      background: #FFEB66;
+      color: #0A2540;
+      border-color: #0A2540;
+      transform: scale(1.06);
+    }
     .game-board {
       display: grid;
       grid-template-columns: repeat(20, 24px);
@@ -211,12 +235,19 @@
       .mobile-controls {
         padding-bottom: 8px;
       }
+      .reset-btn {
+        font-size: 15px;
+        padding: 6px 14px;
+        margin: 44px 0 0 10px;
+        top: 54px;
+      }
     }
   </style>
 </head>
 <body>
   <img src="Screenshot%202025-06-07%20030541.png" alt="Charity Water" class="corner-logo" />
   <div class="scoreboard" id="scoreBoard">Water Collected: 0</div>
+  <button class="reset-btn" onclick="restartGame()">Reset Game</button>
   <div class="container">
     <div class="game-board" id="gameBoard"></div>
     <div class="game-over" id="gameOver">
@@ -247,6 +278,7 @@
     let stream = [{ x: 10, y: 10 }];
     let direction = { x: 0, y: 0 };
     let food = randomPosition();
+    let obstacle = randomPosition();
     let dropletsCollected = 0;
     let gameInterval;
     const fishEmojis = ['🐟', '🐠', '🐡', '🐬'];
@@ -281,6 +313,11 @@
       const foodCell = cells[getIndex(food.x, food.y)];
       foodCell.textContent = "💧"; // water droplet emoji for food
 
+      const obstacleCell = cells[getIndex(obstacle.x, obstacle.y)];
+      if (food.x !== obstacle.x || food.y !== obstacle.y) {
+        obstacleCell.textContent = "💣";
+      }
+
       for (let y = 0; y < boardSize; y++) {
         for (let x = 0; x < boardSize; x++) {
           if (x === 0 || y === 0 || x === boardSize - 1 || y === boardSize - 1) {
@@ -311,6 +348,17 @@
       if (head.x === food.x && head.y === food.y) {
         dropletsCollected++;
         food = randomPosition();
+        // Ensure obstacle does not spawn on food or snake
+        do {
+          obstacle = randomPosition();
+        } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
+      } else if (head.x === obstacle.x && head.y === obstacle.y) {
+        if (dropletsCollected > 0) dropletsCollected--;
+        // Move obstacle to a new position not on food or snake
+        do {
+          obstacle = randomPosition();
+        } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
+        stream.pop(); // still move forward
       } else {
         stream.pop();
       }
@@ -328,6 +376,10 @@
     }
 
     document.addEventListener("keydown", e => {
+      // Prevent default scrolling for arrow keys
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+      }
       switch (e.key) {
         case "ArrowUp": if (direction.y === 0) direction = { x: 0, y: -1 }; break;
         case "ArrowDown": if (direction.y === 0) direction = { x: 0, y: 1 }; break;
@@ -385,6 +437,9 @@
       stream = [{ x: 10, y: 10 }];
       direction = { x: 0, y: 0 };
       food = randomPosition();
+      do {
+        obstacle = randomPosition();
+      } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
       dropletsCollected = 0;
       gameOverScreen.style.display = "none";
       document.querySelectorAll('.confetti-drop').forEach(e => e.remove());
@@ -395,3 +450,4 @@
   </script>
 </body>
 </html>
+
