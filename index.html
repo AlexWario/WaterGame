@@ -55,6 +55,30 @@
       border-color: #0A2540;
       transform: scale(1.06);
     }
+    .difficulty-btn {
+      display: block;
+      margin: 110px 0 0 30px;
+      position: absolute;
+      top: 110px;
+      left: 0;
+      font-size: 18px;
+      background: #0A2540;
+      color: #FFD600;
+      border: 2px solid #FFD600;
+      border-radius: 8px;
+      padding: 8px 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(10,37,64,0.10);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+      z-index: 15;
+    }
+    .difficulty-btn:hover, .difficulty-btn:focus {
+      background: #FFD600;
+      color: #0A2540;
+      border-color: #0A2540;
+      transform: scale(1.06);
+    }
     .game-board {
       display: grid;
       grid-template-columns: repeat(20, 24px);
@@ -241,6 +265,12 @@
         margin: 44px 0 0 10px;
         top: 54px;
       }
+      .difficulty-btn {
+        font-size: 15px;
+        padding: 6px 14px;
+        margin: 80px 0 0 10px;
+        top: 94px;
+      }
     }
   </style>
 </head>
@@ -248,6 +278,7 @@
   <img src="Screenshot%202025-06-07%20030541.png" alt="Charity Water" class="corner-logo" />
   <div class="scoreboard" id="scoreBoard">Water Collected: 0</div>
   <button class="reset-btn" onclick="restartGame()">Reset Game</button>
+  <button class="difficulty-btn" id="difficultyBtn" onclick="toggleDifficulty()">Switch to Hard Mode</button>
   <div class="container">
     <div class="game-board" id="gameBoard"></div>
     <div class="game-over" id="gameOver">
@@ -267,6 +298,7 @@
       <button class="ctrl-btn" id="ctrlRight" aria-label="Right">▶</button>
     </div>
   </div>
+  <audio id="waterGameOverSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae6e2.mp3" preload="auto"></audio>
 
   <script>
     const boardSize = 20;
@@ -281,7 +313,9 @@
     let obstacle = randomPosition();
     let dropletsCollected = 0;
     let gameInterval;
+    let gameSpeed = 220; // slower default for normal mode
     const fishEmojis = ['🐟', '🐠', '🐡', '🐬'];
+    let isHardMode = false;
 
     for (let y = 0; y < boardSize; y++) {
       for (let x = 0; x < boardSize; x++) {
@@ -341,6 +375,12 @@
         finalScore.textContent = `You collected ${dropletsCollected} water`;
         gameOverScreen.style.display = "block";
         showConfettiDrops();
+        // Play water sound effect
+        const waterSound = document.getElementById('waterGameOverSound');
+        if (waterSound) {
+          waterSound.currentTime = 0;
+          waterSound.play();
+        }
         return;
       }
 
@@ -443,10 +483,27 @@
       dropletsCollected = 0;
       gameOverScreen.style.display = "none";
       document.querySelectorAll('.confetti-drop').forEach(e => e.remove());
-      gameInterval = setInterval(gameLoop, 150);
+      setGameSpeed(gameSpeed);
     }
 
-    gameInterval = setInterval(gameLoop, 150);
+    function setGameSpeed(speed) {
+      clearInterval(gameInterval);
+      gameInterval = setInterval(gameLoop, speed);
+    }
+
+    function toggleDifficulty() {
+      isHardMode = !isHardMode;
+      if (isHardMode) {
+        gameSpeed = 90;
+        document.getElementById('difficultyBtn').textContent = 'Switch to Normal Mode';
+      } else {
+        gameSpeed = 220;
+        document.getElementById('difficultyBtn').textContent = 'Switch to Hard Mode';
+      }
+      setGameSpeed(gameSpeed);
+    }
+
+    gameInterval = setInterval(gameLoop, gameSpeed);
   </script>
 </body>
 </html>
