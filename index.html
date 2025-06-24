@@ -17,6 +17,8 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
     }
     .scoreboard {
       position: absolute;
@@ -81,27 +83,49 @@
     }
     .game-board {
       display: grid;
-      grid-template-columns: repeat(20, 24px);
-      grid-template-rows: repeat(20, 24px);
-      gap: 1px;
-      background: #F5F6FA; /* Light gray */
-      border: 10px solid #FFD600; /* Yellow border */
+      grid-template-columns: repeat(15, minmax(0, 1fr));
+      grid-template-rows: repeat(15, minmax(0, 1fr));
+      gap: 0;
+      background: #FFD600;
+      border: 10px solid #FFD600;
       position: relative;
       box-shadow: 0 4px 24px 0 rgba(10,37,64,0.10);
+      width: 90vw;
+      max-width: 480px;
+      aspect-ratio: 1 / 1;
+      min-width: 240px;
+      min-height: 240px;
     }
     .cell {
-      width: 24px;
-      height: 24px;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      height: 100%;
       background-color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      border: 1px solid #E0E4EA;
+      font-size: 1.6rem; /* Lowered font size for better emoji fit */
+      border: 1.5px solid #E0E4EA;
       color: #0A2540;
+      box-sizing: border-box;
+      transition: font-size 0.2s;
+      overflow: hidden; /* Prevent emoji overflow */
+    }
+    @media (max-width: 600px) {
+      .game-board {
+        width: 98vw;
+        max-width: 98vw;
+        min-width: 0;
+        min-height: 0;
+        aspect-ratio: 1 / 1;
+      }
+      .cell {
+        font-size: 2.1rem; /* Lowered mobile font size for emoji fit */
+      }
     }
     .border-drop {
-      background-color: #FFD600;
+      background-color: #FFD600 !important;
+      border-color: #FFD600 !important;
     }
     .game-over {
       position: absolute;
@@ -109,16 +133,21 @@
       left: 50%;
       transform: translate(-50%, -50%) scale(1);
       background: #fff;
-      padding: 40px 40px 30px 40px;
+      padding: 40px 32px 32px 32px;
       border: 3px solid #FFD600;
-      border-radius: 20px;
+      border-radius: 28px;
       text-align: center;
       font-size: 26px;
       display: none;
-      box-shadow: 0 8px 32px 0 rgba(10,37,64,0.18);
+      box-shadow: 0 12px 40px 0 rgba(10,37,64,0.22);
       animation: pop-bounce 0.7s cubic-bezier(.68,-0.55,.27,1.55);
       z-index: 10;
       color: #0A2540;
+      min-width: 320px;
+      max-width: 95vw;
+      width: 370px;
+      box-sizing: border-box;
+      overflow: visible;
     }
     .game-over .splash-emoji {
       font-size: 60px;
@@ -132,30 +161,24 @@
       margin-bottom: 10px;
       font-style: italic;
     }
-    .game-over button {
-      margin-top: 18px;
+    .game-over p {
+      margin: 10px 0 0 0;
       font-size: 20px;
-      background: #FFD600;
       color: #0A2540;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 28px;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 2px 8px rgba(10,37,64,0.10);
-      transition: background 0.2s, transform 0.2s;
     }
-    .game-over button:hover {
-      background: #FFEB66;
-      transform: scale(1.07);
-    }
-    .charity-link {
-      display: inline-block;
-      margin: 16px 0 8px 0;
+    .game-over #finalScore {
+      margin: 10px 0 0 0;
       font-size: 20px;
+      color: #0A2540;
+      font-weight: bold;
+    }
+    .game-over .charity-link {
+      margin: 18px 0 0 0;
+      font-size: 18px;
+      padding: 10px 24px;
+      display: inline-block;
       color: #FFD600;
       background: #0A2540;
-      padding: 8px 22px;
       border-radius: 10px;
       text-decoration: none;
       font-weight: bold;
@@ -165,13 +188,77 @@
       letter-spacing: 0.5px;
       text-shadow: 1px 1px 0 #000, 0 0 2px #000, 0 2px 6px #0008;
     }
-    .charity-link:hover {
+    .game-over .charity-link:hover {
       background: #FFD600;
       color: #0A2540;
       border-color: #0A2540;
       transform: scale(1.06);
       text-decoration: underline;
       text-shadow: none;
+    }
+    .game-over .game-over-actions {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+      width: 100%;
+    }
+    .game-over .game-over-actions button {
+      flex: 1 1 0;
+      font-size: 18px;
+      background: #FFD600;
+      color: #0A2540;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 0;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(10,37,64,0.10);
+      transition: background 0.2s, transform 0.2s;
+      margin: 0;
+      min-width: 0;
+      max-width: 100%;
+      display: block;
+    }
+    .game-over .game-over-actions button:hover {
+      background: #FFEB66;
+      transform: scale(1.07);
+    }
+    @media (max-width: 600px) {
+      .game-over {
+        min-width: 0;
+        width: 98vw;
+        max-width: 98vw;
+        padding: 22px 4vw 18px 4vw;
+        font-size: 16px;
+        border-radius: 14px;
+      }
+      .game-over .splash-emoji {
+        font-size: 36px;
+        margin-bottom: 6px;
+      }
+      .game-over .fun-message {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+      .game-over p, .game-over #finalScore {
+        font-size: 13px;
+      }
+      .game-over .charity-link {
+        font-size: 13px;
+        padding: 6px 6px;
+        margin: 10px 0 0 0;
+      }
+      .game-over .game-over-actions {
+        gap: 6px;
+        margin-top: 16px;
+      }
+      .game-over .game-over-actions button {
+        font-size: 13px;
+        padding: 8px 0;
+      }
     }
     @keyframes pop-bounce {
       0% { transform: translate(-50%, -50%) scale(0.7); }
@@ -271,6 +358,32 @@
         margin: 80px 0 0 10px;
         top: 94px;
       }
+      .container {
+        height: auto;
+        min-height: 100vh;
+        padding-bottom: 120px;
+      }
+      .game-board {
+        width: 98vw;
+        max-width: 98vw;
+        min-width: 0;
+        min-height: 0;
+        aspect-ratio: 1 / 1;
+      }
+      .scoreboard, .reset-btn, .difficulty-btn {
+        position: static;
+        margin: 10px auto 0 auto;
+        left: unset;
+        top: unset;
+        display: block;
+        text-align: center;
+      }
+      .reset-btn {
+        margin-top: 10px;
+      }
+      .difficulty-btn {
+        margin-top: 10px;
+      }
     }
   </style>
 </head>
@@ -278,7 +391,6 @@
   <img src="Screenshot%202025-06-07%20030541.png" alt="Charity Water" class="corner-logo" />
   <div class="scoreboard" id="scoreBoard">Water Collected: 0</div>
   <button class="reset-btn" onclick="restartGame()">Reset Game</button>
-  <button class="difficulty-btn" id="difficultyBtn" onclick="toggleDifficulty()">Switch to Hard Mode</button>
   <div class="container">
     <div class="game-board" id="gameBoard"></div>
     <div class="game-over" id="gameOver">
@@ -287,7 +399,9 @@
       <p>Game Over!</p>
       <p id="finalScore">You collected 0 water</p>
       <a href="https://www.charitywater.org/" target="_blank" class="charity-link">Learn more at charity: water</a>
-      <button onclick="restartGame()">Play Again</button>
+      <div class="game-over-actions">
+        <button onclick="restartGame()">Play Again</button>
+      </div>
     </div>
   </div>
   <div class="mobile-controls" id="mobileControls">
@@ -301,31 +415,40 @@
   <audio id="waterGameOverSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae6e2.mp3" preload="auto"></audio>
 
   <script>
-    const boardSize = 20;
+    // Remove unnecessary global variables and optimize DOM queries
+    const boardSize = 15;
     const gameBoard = document.getElementById("gameBoard");
     const gameOverScreen = document.getElementById("gameOver");
     const finalScore = document.getElementById("finalScore");
     const scoreBoard = document.getElementById("scoreBoard");
-    const cells = [];
-    let stream = [{ x: 10, y: 10 }];
-    let direction = { x: 0, y: 0 };
-    let food = randomPosition();
-    let obstacle = randomPosition();
-    let dropletsCollected = 0;
-    let gameInterval;
-    let gameSpeed = 220; // slower default for normal mode
+    const mobileControls = document.getElementById('mobileControls');
     const fishEmojis = ['🐟', '🐠', '🐡', '🐬'];
-    let isHardMode = false;
+    let stream, direction, food, obstacle, dropletsCollected, gameInterval, gameSpeed, isHardMode;
+    const cells = [];
 
-    for (let y = 0; y < boardSize; y++) {
-      for (let x = 0; x < boardSize; x++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        if (x === 0 || y === 0 || x === boardSize - 1 || y === boardSize - 1) {
-          cell.classList.add("border-drop");
+    function initGame() {
+      stream = [{ x: 10, y: 10 }];
+      direction = { x: 0, y: 0 };
+      food = randomPosition();
+      do {
+        obstacle = randomPosition();
+      } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
+      dropletsCollected = 0;
+      gameSpeed = isHardMode ? 90 : 220;
+    }
+
+    // Create board only once
+    if (!gameBoard.hasChildNodes()) {
+      for (let y = 0; y < boardSize; y++) {
+        for (let x = 0; x < boardSize; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          if (x === 0 || y === 0 || x === boardSize - 1 || y === boardSize - 1) {
+            cell.classList.add("border-drop");
+          }
+          gameBoard.appendChild(cell);
+          cells.push(cell);
         }
-        gameBoard.appendChild(cell);
-        cells.push(cell);
       }
     }
 
@@ -334,38 +457,24 @@
     }
 
     function draw() {
-      cells.forEach(cell => {
-        cell.className = "cell";
+      // Only update changed cells for efficiency
+      cells.forEach((cell, idx) => {
+        cell.className = "cell" + (cell.classList.contains("border-drop") ? " border-drop" : "");
         cell.textContent = "";
       });
-
       stream.forEach((part, index) => {
         const cell = cells[getIndex(part.x, part.y)];
         cell.textContent = fishEmojis[index % fishEmojis.length];
       });
-
-      const foodCell = cells[getIndex(food.x, food.y)];
-      foodCell.textContent = "💧"; // water droplet emoji for food
-
-      const obstacleCell = cells[getIndex(obstacle.x, obstacle.y)];
+      cells[getIndex(food.x, food.y)].textContent = "💧";
       if (food.x !== obstacle.x || food.y !== obstacle.y) {
-        obstacleCell.textContent = "💣";
+        cells[getIndex(obstacle.x, obstacle.y)].textContent = "💣";
       }
-
-      for (let y = 0; y < boardSize; y++) {
-        for (let x = 0; x < boardSize; x++) {
-          if (x === 0 || y === 0 || x === boardSize - 1 || y === boardSize - 1) {
-            cells[getIndex(x, y)].classList.add("border-drop");
-          }
-        }
-      }
-
       scoreBoard.textContent = `Water Collected: ${dropletsCollected}`;
     }
 
     function move() {
       const head = { x: stream[0].x + direction.x, y: stream[0].y + direction.y };
-
       if (
         head.x < 1 || head.x >= boardSize - 1 ||
         head.y < 1 || head.y >= boardSize - 1 ||
@@ -373,9 +482,7 @@
       ) {
         clearInterval(gameInterval);
         finalScore.textContent = `You collected ${dropletsCollected} water`;
-        gameOverScreen.style.display = "block";
-        showConfettiDrops();
-        // Play water sound effect
+        showGameOverScreen();
         const waterSound = document.getElementById('waterGameOverSound');
         if (waterSound) {
           waterSound.currentTime = 0;
@@ -383,22 +490,19 @@
         }
         return;
       }
-
       stream.unshift(head);
       if (head.x === food.x && head.y === food.y) {
         dropletsCollected++;
         food = randomPosition();
-        // Ensure obstacle does not spawn on food or snake
         do {
           obstacle = randomPosition();
         } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
       } else if (head.x === obstacle.x && head.y === obstacle.y) {
         if (dropletsCollected > 0) dropletsCollected--;
-        // Move obstacle to a new position not on food or snake
         do {
           obstacle = randomPosition();
         } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
-        stream.pop(); // still move forward
+        stream.pop();
       } else {
         stream.pop();
       }
@@ -411,20 +515,19 @@
           x: Math.floor(Math.random() * (boardSize - 2)) + 1,
           y: Math.floor(Math.random() * (boardSize - 2)) + 1,
         };
-      } while (stream.some(part => part.x === pos.x && part.y === pos.y));
+      } while (stream && stream.some(part => part.x === pos.x && part.y === pos.y));
       return pos;
     }
 
     document.addEventListener("keydown", e => {
-      // Prevent default scrolling for arrow keys
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         e.preventDefault();
-      }
-      switch (e.key) {
-        case "ArrowUp": if (direction.y === 0) direction = { x: 0, y: -1 }; break;
-        case "ArrowDown": if (direction.y === 0) direction = { x: 0, y: 1 }; break;
-        case "ArrowLeft": if (direction.x === 0) direction = { x: -1, y: 0 }; break;
-        case "ArrowRight": if (direction.x === 0) direction = { x: 1, y: 0 }; break;
+        switch (e.key) {
+          case "ArrowUp": if (direction.y === 0) direction = { x: 0, y: -1 }; break;
+          case "ArrowDown": if (direction.y === 0) direction = { x: 0, y: 1 }; break;
+          case "ArrowLeft": if (direction.x === 0) direction = { x: -1, y: 0 }; break;
+          case "ArrowRight": if (direction.x === 0) direction = { x: 1, y: 0 }; break;
+        }
       }
     });
 
@@ -432,26 +535,22 @@
     function isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
-    const mobileControls = document.getElementById('mobileControls');
     if (isMobile()) {
       mobileControls.style.display = 'flex';
+      [
+        ['ctrlUp', { x: 0, y: -1 }, 'y'],
+        ['ctrlDown', { x: 0, y: 1 }, 'y'],
+        ['ctrlLeft', { x: -1, y: 0 }, 'x'],
+        ['ctrlRight', { x: 1, y: 0 }, 'x']
+      ].forEach(([id, dir, axis]) => {
+        document.getElementById(id).addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          if ((axis === 'y' && direction.y === 0) || (axis === 'x' && direction.x === 0)) direction = dir;
+        });
+      });
+    } else {
+      mobileControls.style.display = 'none';
     }
-    document.getElementById('ctrlUp').addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      if (direction.y === 0) direction = { x: 0, y: -1 };
-    });
-    document.getElementById('ctrlDown').addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      if (direction.y === 0) direction = { x: 0, y: 1 };
-    });
-    document.getElementById('ctrlLeft').addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      if (direction.x === 0) direction = { x: -1, y: 0 };
-    });
-    document.getElementById('ctrlRight').addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      if (direction.x === 0) direction = { x: 1, y: 0 };
-    });
 
     function gameLoop() {
       if (direction.x !== 0 || direction.y !== 0) move();
@@ -459,7 +558,6 @@
     }
 
     function showConfettiDrops() {
-      // Remove old confetti
       document.querySelectorAll('.confetti-drop').forEach(e => e.remove());
       const emojis = ['💧','💦','💙','🫧'];
       for (let i = 0; i < 16; i++) {
@@ -474,16 +572,11 @@
     }
 
     function restartGame() {
-      stream = [{ x: 10, y: 10 }];
-      direction = { x: 0, y: 0 };
-      food = randomPosition();
-      do {
-        obstacle = randomPosition();
-      } while ((obstacle.x === food.x && obstacle.y === food.y) || stream.some(part => part.x === obstacle.x && part.y === obstacle.y));
-      dropletsCollected = 0;
-      gameOverScreen.style.display = "none";
+      initGame();
+      hideGameOverScreen();
       document.querySelectorAll('.confetti-drop').forEach(e => e.remove());
       setGameSpeed(gameSpeed);
+      draw();
     }
 
     function setGameSpeed(speed) {
@@ -493,17 +586,33 @@
 
     function toggleDifficulty() {
       isHardMode = !isHardMode;
-      if (isHardMode) {
-        gameSpeed = 90;
-        document.getElementById('difficultyBtn').textContent = 'Switch to Normal Mode';
-      } else {
-        gameSpeed = 220;
-        document.getElementById('difficultyBtn').textContent = 'Switch to Hard Mode';
-      }
+      gameSpeed = isHardMode ? 90 : 220;
+      document.getElementById('difficultyBtn').textContent = isHardMode ? 'Switch to Normal Mode' : 'Switch to Hard Mode';
       setGameSpeed(gameSpeed);
     }
 
-    gameInterval = setInterval(gameLoop, gameSpeed);
+    function showGameOverScreen() {
+      gameOverScreen.style.display = "block";
+      showConfettiDrops();
+      const diffBtn = document.getElementById('difficultyBtn');
+      if (diffBtn) {
+        diffBtn.style.display = 'inline-block';
+        diffBtn.textContent = isHardMode ? 'Switch to Normal Mode' : 'Switch to Hard Mode';
+      }
+    }
+
+    function hideGameOverScreen() {
+      gameOverScreen.style.display = "none";
+      const diffBtn = document.getElementById('difficultyBtn');
+      if (diffBtn) diffBtn.style.display = 'none';
+    }
+
+    // Initialize game state and start
+    isHardMode = false;
+    initGame();
+    setGameSpeed(gameSpeed);
+    hideGameOverScreen();
+    draw();
   </script>
 </body>
 </html>
